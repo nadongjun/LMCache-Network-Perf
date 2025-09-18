@@ -1,0 +1,1 @@
+docker run --rm --runtime=nvidia   -e NVIDIA_VISIBLE_DEVICES=all   -e NVIDIA_DRIVER_CAPABILITIES=compute,utility   nvidia/cuda:12.6.2-base-ubuntu22.04 nvidia-smi

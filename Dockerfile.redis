@@ -1,0 +1,7 @@
+FROM redis:7-alpine
+
+RUN apk add --no-cache \
+    iproute2 \
+    iptables \
+    ethtool \
+    iputils

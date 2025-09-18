@@ -1,0 +1,42 @@
+services:
+  redis:
+    build:
+      context: .
+      dockerfile: Dockerfile.redis
+    image: lmcache_redis_tc
+    container_name: lmcache_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    cap_add:
+      - NET_ADMIN
+
+  vllm:
+    build:
+      context: .
+      dockerfile: Dockerfile.vllm
+    image: lmcache_vllm_tc
+    container_name: lmcache_vllm
+    restart: unless-stopped
+    depends_on:
+      - redis
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - HF_TOKEN=${HF_TOKEN}
+      - LMCACHE_CONFIG_FILE=/config/lmcache-config.yaml
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    volumes:
+      - ./config/lmcache-config.yaml:/config/lmcache-config.yaml:ro
+      - ~/.cache/huggingface:/home/ubuntu/.cache/huggingface
+    ports:
+      - "${HTTP_PORT}:${HTTP_PORT}"
+    command:
+      - "${MODEL_NAME}"
+      - --port
+      - "${HTTP_PORT}"
+      - --kv-transfer-config
+      - '{"kv_connector":"LMCacheConnectorV1","kv_role":"kv_both"}'
+    cap_add:
+      - NET_ADMIN

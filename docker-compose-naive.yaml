@@ -1,0 +1,19 @@
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: naive_vllm
+    restart: unless-stopped
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - HF_TOKEN=${HF_TOKEN}
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN}
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    ports:
+      - "8000:${HTTP_PORT}"
+    command:
+      - ${MODEL_NAME}
+      - --port
+      - "${HTTP_PORT}"
+
